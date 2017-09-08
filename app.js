@@ -14,6 +14,7 @@ var c = new Crawler({
     } else {
       var $ = res.$;
       if (isCompanyListPage($)) {
+        addMorePagesFromPageOne($, res.options.uri);
         var companyList = createCompanyList($);
         companyList.forEach(addToCrawlerQueue);
         console.log('read company list page')
@@ -25,6 +26,23 @@ var c = new Crawler({
 
     }
     done();
+    function addMorePagesFromPageOne($, uri) {
+      var current = $('a.page-num.active').text();
+      current = parseInt(current);
+      
+      if (current === 1) {
+        var total = $('div.page-total').text().match(/\d+/g)[0];
+        total = parseInt(total);
+        var i = 2;
+        while(i <= total) {
+          var targetUri = uri.replace(/page=\d+/, 'page=' + i);
+          c.queue(targetUri);
+          console.log('add list: ' + targetUri);
+          i++;
+        }
+      }
+      
+    }
     function isCompanyListPage($) {
       return $('title').text().indexOf(' - 104 人力銀行') !== -1;
     }
@@ -40,9 +58,6 @@ var c = new Crawler({
       });
       return result;
       function filterCompanyPage(links) {
-        // console.log('=====')
-        // console.log(links);
-        // console.log('=====')
         var result = [];
         console.log('links.length: ' + links.length);
         links.each(function (i, link) {
@@ -64,8 +79,6 @@ var c = new Crawler({
           capital: $('dd').slice(3, 4).text(),
           contact: $('dd').slice(4, 5).text(),
           address: $('dd').slice(5, 6).text().replace('地圖', '').trim()
-          // phone: $('dd').slice(6, 7).text(),
-          // fax: $('dd').slice(7, 8).text(),
 
         },
       };
@@ -119,13 +132,8 @@ c.on('drain', function() {
   fs.writeFileSync('companies.txt', JSON.stringify(companies, null, 2))
   // add to database
 })
-// if you want to crawl some website with 2000ms gap between requests
-for (var i = 1; i <= 500; i++) {
-  c.queue(`https://www.104.com.tw/cust/?page=${i}&order=1&mode=s&jobsource=checkc`);
-}
-// var companyPageUrl = 'https://www.104.com.tw/jobbank/custjob/index.php?r=cust&j=4870426e383640683c583a1d1d1d1d5f2443a363189j56&jobsource=checkc'
-// companyPageUrl = 'https://www.104.com.tw/jobbank/custjob/index.php?r=cust&j=386043295e5c3f2030423a1d1d1d1d5f24437323189j56&jobsource=checkc'
-// // 麵包店
-// companyPageUrl = 'https://www.104.com.tw/jobbank/custjob/index.php?r=cust&j=643c446d3638406932343c653a40381b82b2b2b2a436e382664j52&jobsource=checkc'
-// c.queue(companyPageUrl)
 
+// c.queue('https://www.104.com.tw/cust/list/index/?page=1&order=1&mode=s&jobsource=checkc&area=6001003000');
+var urls = fs.readFileSync('./data/groupByAreaUrls.txt', 'utf8');
+urls = JSON.parse(urls);
+urls.forEach(url => c.queue(url));
