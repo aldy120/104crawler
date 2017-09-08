@@ -20,7 +20,7 @@ var c = new Crawler({
         console.log('read company list page')
         console.log(`added ${companyList.length} company to crawler queue`);
       } else if (isCompanyInfoPage($)) {
-        saveCompnayInfoPage($);
+        saveCompnayInfoPage($, res.options.uri);
         console.log('company saved: ' + $('title').text());
       }
 
@@ -68,7 +68,7 @@ var c = new Crawler({
         return cheerio(result);
       }
     }
-    function saveCompnayInfoPage($) {
+    function saveCompnayInfoPage($, uri) {
       company = {
         name: $('title').text().replace('＜公司簡介及所有工作機會＞─104人力銀行', ''),
         // 公司介紹
@@ -81,6 +81,9 @@ var c = new Crawler({
           address: $('dd').slice(5, 6).text().replace('地圖', '').trim()
 
         },
+        // 104公司頁網址
+        pageIn104: uri
+        
       };
       // 環境照片
       if ($('#environment').find('img').length) {
@@ -119,6 +122,17 @@ var c = new Crawler({
       if ($('.intro').slice(1, 2).find('p').slice(3, 4).prev().text() === '經營理念') {
         company.philosophy = $('.intro').slice(1, 2).find('p').slice(3, 4).text();
       }
+
+      // 標題旁邊的tag
+      if ($('h1 a span').map(function(i, item) {return $(item).text()}).toArray().length) {
+        company.tags = $('h1 a span').map(function(i, item) {return $(item).text()}).toArray();
+      }
+
+      // 公司大圖
+      if ($('#a_top img').attr('src')) {
+        company.imageUrl = $('#a_top img').attr('src');
+      }
+      
       companies.push(company);
     }
     function addToCrawlerQueue(x, i) {
@@ -133,7 +147,6 @@ c.on('drain', function() {
   // add to database
 })
 
-// c.queue('https://www.104.com.tw/cust/list/index/?page=1&order=1&mode=s&jobsource=checkc&area=6001003000');
 var urls = fs.readFileSync('./data/groupByAreaUrls.txt', 'utf8');
 urls = JSON.parse(urls);
 urls.forEach(url => c.queue(url));
