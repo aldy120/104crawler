@@ -6,7 +6,7 @@ var fs = require('fs');
 var companies = [];
 
 var c = new Crawler({
-  rateLimit: 1000,
+  rateLimit: 300,
   maxConnections: 1,
   callback: function (error, res, done) {
     if (error) {
