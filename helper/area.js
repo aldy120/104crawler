@@ -1,3 +1,4 @@
+// 新增行政區資料到資料庫
 // https://www.104.com.tw/public/function01/utf8/jsonArea.js
 var MongoClient = require('mongodb').MongoClient;
 var request = require('request');

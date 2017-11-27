@@ -1,3 +1,4 @@
+// 新增公司資料到資料庫
 var fs = require('fs');
 var MongoClient = require('mongodb').MongoClient;
 

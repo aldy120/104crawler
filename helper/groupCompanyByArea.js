@@ -1,3 +1,4 @@
+// 把小區域id整理出來，避開500頁限制
 var fs = require('fs');
 
 var area = fs.readFileSync('../data/area.txt');

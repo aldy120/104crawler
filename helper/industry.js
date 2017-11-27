@@ -1,3 +1,4 @@
+// 存產業類別資料到資料庫
 // https://www.104.com.tw/public/function01/utf8/jsonIndust.js
 var MongoClient = require('mongodb').MongoClient;
 var request = require('request');

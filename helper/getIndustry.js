@@ -1,3 +1,4 @@
+// 存產業類別資料到檔案
 var request = require('request');
 var fs = require('fs');
 var assert = require('assert');
